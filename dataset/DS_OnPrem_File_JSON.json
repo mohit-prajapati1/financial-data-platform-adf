@@ -1,0 +1,61 @@
+{
+	"name": "DS_OnPrem_File_JSON",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_OnPrem_FileSystem",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"foldernamame": {
+				"type": "string",
+				"defaultValue": "KYC"
+			},
+			"filename": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "FileServerLocation",
+				"fileName": {
+					"value": "@dataset().filename",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().foldernamame",
+					"type": "Expression"
+				}
+			},
+			"encodingName": "UTF-8"
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"CustomerID": {
+					"type": "integer"
+				},
+				"CustomerNumber": {
+					"type": "string"
+				},
+				"KYCStatus": {
+					"type": "string"
+				},
+				"VerificationType": {
+					"type": "string"
+				},
+				"VerificationDate": {
+					"type": "string"
+				},
+				"DocumentStatus": {
+					"type": "string"
+				},
+				"RiskCategory": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

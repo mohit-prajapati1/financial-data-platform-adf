@@ -1,0 +1,31 @@
+{
+	"name": "DS_ExchangeRate_API",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ExchangeRate_API",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"baseCurrency": {
+				"type": "string"
+			},
+			"quoteCurrencies": {
+				"type": "string"
+			},
+			"relativeurl": {
+				"type": "string",
+				"defaultValue": "/v2/rates"
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": {
+				"value": "@concat(dataset().relativeurl, '?base=', dataset().baseCurrency, '&quotes=', dataset().quoteCurrencies)",
+				"type": "Expression"
+			}
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,22 @@
+{
+	"name": "LS_SQLServer_ApexCoreBanking_DEV",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "On-prem SQL Server connection for Apex Financial DEV",
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"server": "Mohit-Prajapati\\DEV",
+			"database": "ApexCoreBanking",
+			"encrypt": "mandatory",
+			"trustServerCertificate": true,
+			"authenticationType": "SQL",
+			"userName": "apex_adf",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJjMzA0ZDQxMy1iNmE1LTQ5ZDgtYjA4OS0wZWNkMzNmNjczNjAiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "SHIR-ApexFinancial-ONP-01",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

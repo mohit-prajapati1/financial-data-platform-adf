@@ -1,0 +1,15 @@
+{
+	"name": "adf-financial-data-dev",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "canadacentral",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "9c51b3bb-7351-4493-b7e3-dc5a299cdb45",
+		"tenantId": "db1cd227-ff45-46f6-8c74-bbe01f56b7db"
+	}
+}
