@@ -5,15 +5,6 @@
 			"referenceName": "LS_SQLServer_ApexCoreBanking_DEV",
 			"type": "LinkedServiceReference"
 		},
-		"parameters": {
-			"schemaname": {
-				"type": "string",
-				"defaultValue": "dbo"
-			},
-			"tablename": {
-				"type": "string"
-			}
-		},
 		"annotations": [],
 		"type": "SqlServerTable",
 		"schema": [

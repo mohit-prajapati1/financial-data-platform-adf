@@ -34,138 +34,6 @@
 					"enableStaging": false,
 					"translator": {
 						"type": "TabularTranslator",
-						"mappings": [
-							{
-								"source": {
-									"name": "AccountID",
-									"type": "Int64"
-								},
-								"sink": {
-									"name": "AccountID",
-									"type": "Int64"
-								}
-							},
-							{
-								"source": {
-									"name": "AccountNumber",
-									"type": "String"
-								},
-								"sink": {
-									"name": "AccountNumber",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "CustomerID",
-									"type": "Int64"
-								},
-								"sink": {
-									"name": "CustomerID",
-									"type": "Int64"
-								}
-							},
-							{
-								"source": {
-									"name": "BranchID",
-									"type": "Int32"
-								},
-								"sink": {
-									"name": "BranchID",
-									"type": "Int32"
-								}
-							},
-							{
-								"source": {
-									"name": "AccountType",
-									"type": "String"
-								},
-								"sink": {
-									"name": "AccountType",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "CurrencyCode",
-									"type": "String"
-								},
-								"sink": {
-									"name": "CurrencyCode",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "OpeningDate",
-									"type": "Date"
-								},
-								"sink": {
-									"name": "OpeningDate",
-									"type": "Date"
-								}
-							},
-							{
-								"source": {
-									"name": "ClosingDate",
-									"type": "Date"
-								},
-								"sink": {
-									"name": "ClosingDate",
-									"type": "Date"
-								}
-							},
-							{
-								"source": {
-									"name": "CurrentBalance",
-									"type": "Decimal"
-								},
-								"sink": {
-									"name": "CurrentBalance",
-									"type": "Decimal"
-								}
-							},
-							{
-								"source": {
-									"name": "AvailableBalance",
-									"type": "Decimal"
-								},
-								"sink": {
-									"name": "AvailableBalance",
-									"type": "Decimal"
-								}
-							},
-							{
-								"source": {
-									"name": "AccountStatus",
-									"type": "String"
-								},
-								"sink": {
-									"name": "AccountStatus",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "CreatedDate",
-									"type": "DateTime"
-								},
-								"sink": {
-									"name": "CreatedDate",
-									"type": "DateTime"
-								}
-							},
-							{
-								"source": {
-									"name": "LastModifiedDate",
-									"type": "DateTime"
-								},
-								"sink": {
-									"name": "LastModifiedDate",
-									"type": "DateTime"
-								}
-							}
-						],
 						"typeConversion": true,
 						"typeConversionSettings": {
 							"allowDataTruncation": true,
@@ -176,14 +44,7 @@
 				"inputs": [
 					{
 						"referenceName": "DS_SQL_Source",
-						"type": "DatasetReference",
-						"parameters": {
-							"schemaname": "dbo",
-							"tablename": {
-								"value": "@pipeline().parameters.tablename",
-								"type": "Expression"
-							}
-						}
+						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
@@ -192,7 +53,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"tablename": {
-								"value": "@concat(\r\n    pipeline().parameters.filename,\r\n    '_',\r\n    formatDateTime(utcnow(),'yyyyMMdd_HHmmss'),\r\n    '.csv'\r\n)",
+								"value": "@concat(\n    pipeline().parameters.filename,\n    '_',\n    formatDateTime(utcNow(),'yyyyMMdd_HHmmss'),\n    '.csv'\n)",
 								"type": "Expression"
 							}
 						}
