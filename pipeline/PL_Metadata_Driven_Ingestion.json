@@ -54,7 +54,6 @@
 							"typeProperties": {
 								"source": {
 									"type": "SqlServerSource",
-									"sqlReaderQuery": "",
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
@@ -82,7 +81,13 @@
 							"inputs": [
 								{
 									"referenceName": "DS_SQL_Source",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"tablename": {
+											"value": "@item().tablename",
+											"type": "Expression"
+										}
+									}
 								}
 							],
 							"outputs": [
@@ -91,7 +96,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"tablename": {
-											"value": "@concat(\n    pipeline().parameters.filename,\n    '_',\n    formatDateTime(utcNow(),'yyyyMMdd_HHmmss'),\n    '.csv'\n)",
+											"value": "@item().tablename",
 											"type": "Expression"
 										}
 									}
