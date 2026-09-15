@@ -16,71 +16,7 @@
 		},
 		"annotations": [],
 		"type": "SqlServerTable",
-		"schema": [
-			{
-				"name": "CustomerID",
-				"type": "bigint",
-				"precision": 19
-			},
-			{
-				"name": "CustomerNumber",
-				"type": "varchar"
-			},
-			{
-				"name": "FirstName",
-				"type": "varchar"
-			},
-			{
-				"name": "LastName",
-				"type": "varchar"
-			},
-			{
-				"name": "DateOfBirth",
-				"type": "date"
-			},
-			{
-				"name": "Gender",
-				"type": "varchar"
-			},
-			{
-				"name": "Email",
-				"type": "varchar"
-			},
-			{
-				"name": "PhoneNumber",
-				"type": "varchar"
-			},
-			{
-				"name": "City",
-				"type": "varchar"
-			},
-			{
-				"name": "State",
-				"type": "varchar"
-			},
-			{
-				"name": "Country",
-				"type": "varchar"
-			},
-			{
-				"name": "CustomerSegment",
-				"type": "varchar"
-			},
-			{
-				"name": "CustomerStatus",
-				"type": "varchar"
-			},
-			{
-				"name": "CreatedDate",
-				"type": "datetime2",
-				"scale": 0
-			},
-			{
-				"name": "LastModifiedDate",
-				"type": "datetime2",
-				"scale": 0
-			}
-		],
+		"schema": [],
 		"typeProperties": {
 			"schema": {
 				"value": "@dataset().schemaname",
