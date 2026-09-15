@@ -63,8 +63,18 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "DS_SqlServer",
-									"type": "DatasetReference"
+									"referenceName": "DS_SqlServer_dev",
+									"type": "DatasetReference",
+									"parameters": {
+										"schemaname": {
+											"value": "@item().schemaname",
+											"type": "Expression"
+										},
+										"tablename": {
+											"value": "@item().tablename",
+											"type": "Expression"
+										}
+									}
 								}
 							],
 							"outputs": [
@@ -72,8 +82,8 @@
 									"referenceName": "DS_ADLS",
 									"type": "DatasetReference",
 									"parameters": {
-										"tablename": {
-											"value": "@item().tablename",
+										"filename": {
+											"value": "@concat(\n    item().tablename,\n    '_',\n    formatDateTime(utcnow(),'yyyyMMdd_HHmmss'),\n    '.csv'\n)",
 											"type": "Expression"
 										}
 									}
@@ -103,13 +113,21 @@
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "DS_SqlServer",
+						"referenceName": "DS_SqlServer_lookup",
 						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
 				}
 			}
 		],
+		"parameters": {
+			"schemaname": {
+				"type": "string"
+			},
+			"tablename": {
+				"type": "string"
+			}
+		},
 		"annotations": []
 	}
 }
