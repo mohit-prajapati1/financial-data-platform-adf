@@ -23,7 +23,11 @@
 					},
 					"dataset": {
 						"referenceName": "DS_SQL_Source",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"tablename": "dbo",
+							"schemaname": "ETL_Table_Config"
+						}
 					}
 				}
 			}
