@@ -17,7 +17,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "SqlServerSource",
-						"sqlReaderQuery": "SELECT\n    TableID,\n    TableName,\n    SourceSchema,\n    TargetFolder\nFROM ETL_Table_Config\nWHERE IsActive = 1\nORDER BY TableID;",
+						"sqlReaderQuery": "SELECT\n*\nFROM ETL_Table_Config\n",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
@@ -25,8 +25,7 @@
 						"referenceName": "DS_SQL_Source",
 						"type": "DatasetReference",
 						"parameters": {
-							"tablename": "dbo",
-							"schemaname": "ETL_Table_Config"
+							"schemaname": "dbo"
 						}
 					}
 				}
