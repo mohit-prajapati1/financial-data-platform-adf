@@ -104,6 +104,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT\n    TableID,\n    TableName,\n    SourceSchema,\n    TargetFolder\nFROM ETL_Table_Config\nWHERE IsActive = 1\nORDER BY TableID;",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
