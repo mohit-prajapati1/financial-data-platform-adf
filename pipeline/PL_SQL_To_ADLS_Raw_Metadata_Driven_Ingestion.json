@@ -1,5 +1,5 @@
 {
-	"name": "PL_Metadata_Driven_Ingestion",
+	"name": "PL_SQL_To_ADLS_Raw_Metadata_Driven_Ingestion",
 	"properties": {
 		"activities": [
 			{
