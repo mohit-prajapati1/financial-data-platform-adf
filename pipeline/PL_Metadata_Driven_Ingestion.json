@@ -9,9 +9,11 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('PL_SQL_To_ADLS_Raw').outputactivity('LKP_Table_Config').output.value",
+						"value": "@activity('LKP_Table_Config').output.value",
 						"type": "Expression"
 					},
+					"isSequential": false,
+					"batchCount": 3,
 					"activities": [
 						{
 							"name": "LKP_Table_Config",
@@ -34,7 +36,13 @@
 								},
 								"dataset": {
 									"referenceName": "DS_SQL_Source",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"tablename": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									}
 								},
 								"firstRowOnly": false
 							}
