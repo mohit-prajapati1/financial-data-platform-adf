@@ -28,22 +28,6 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"source": {
-									"type": "SqlServerSource",
-									"sqlReaderQuery": "SELECT\n    TableID,\n    TableName,\n    SourceSchema,\n    TargetFolder\nFROM ETL_Table_Config\nWHERE IsActive = 1\nORDER BY TableID;\n",
-									"queryTimeout": "02:00:00",
-									"partitionOption": "None"
-								},
-								"dataset": {
-									"referenceName": "DS_SQL_Source",
-									"type": "DatasetReference",
-									"parameters": {
-										"tablename": {
-											"value": "@item()",
-											"type": "Expression"
-										}
-									}
-								},
 								"firstRowOnly": false
 							}
 						},
@@ -67,11 +51,6 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"source": {
-									"type": "SqlServerSource",
-									"queryTimeout": "02:00:00",
-									"partitionOption": "None"
-								},
 								"sink": {
 									"type": "DelimitedTextSink",
 									"storeSettings": {
@@ -83,28 +62,8 @@
 										"fileExtension": ".txt"
 									}
 								},
-								"enableStaging": false,
-								"translator": {
-									"type": "TabularTranslator",
-									"typeConversion": true,
-									"typeConversionSettings": {
-										"allowDataTruncation": true,
-										"treatBooleanAsNumber": false
-									}
-								}
+								"enableStaging": false
 							},
-							"inputs": [
-								{
-									"referenceName": "DS_SQL_Source",
-									"type": "DatasetReference",
-									"parameters": {
-										"tablename": {
-											"value": "@item().tablename",
-											"type": "Expression"
-										}
-									}
-								}
-							],
 							"outputs": [
 								{
 									"referenceName": "DS_ADLS",
