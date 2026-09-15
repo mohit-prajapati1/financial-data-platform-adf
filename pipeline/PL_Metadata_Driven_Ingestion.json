@@ -1,14 +1,83 @@
 {
 	"name": "PL_Metadata_Driven_Ingestion",
 	"properties": {
-		"parameters": {
-			"schemaname": {
-				"type": "string"
+		"activities": [
+			{
+				"name": "LKP_Table_Config",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT\n    TableID,\n    TableName,\n    SourceSchema,\n    TargetFolder\nFROM ETL_Table_Config\nWHERE IsActive = 1\nORDER BY TableID;",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_Sql_Server_lookup",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
 			},
-			"tablename": {
-				"type": "string"
+			{
+				"name": "listoftableloop",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "LKP_Table_Config",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('LKP_Table_Config').output.value",
+						"type": "Expression"
+					},
+					"batchCount": 5,
+					"activities": [
+						{
+							"name": "SQL_To_ADLS_Raw",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 2,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Sql_Server_dev",
+									"type": "DatasetReference"
+								}
+							]
+						}
+					]
+				}
 			}
-		},
+		],
 		"annotations": []
 	}
 }
