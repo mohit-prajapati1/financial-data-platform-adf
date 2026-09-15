@@ -192,7 +192,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"tablename": {
-								"value": "@pipeline().parameters.filename",
+								"value": "@concat(\r\n    pipeline().parameters.filename,\r\n    '_',\r\n    formatDateTime(utcnow(),'yyyyMMdd_HHmmss'),\r\n    '.csv'\r\n)",
 								"type": "Expression"
 							}
 						}
