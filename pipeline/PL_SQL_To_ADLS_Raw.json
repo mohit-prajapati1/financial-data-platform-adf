@@ -20,16 +20,6 @@
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
-					"sink": {
-						"type": "ParquetSink",
-						"storeSettings": {
-							"type": "AzureBlobFSWriteSettings",
-							"maxConcurrentConnections": 0
-						},
-						"formatSettings": {
-							"type": "ParquetWriteSettings"
-						}
-					},
 					"enableStaging": false,
 					"translator": {
 						"type": "TabularTranslator",
@@ -37,80 +27,67 @@
 							{
 								"source": {
 									"name": "AccountID",
-									"type": "Int64",
-									"physicalType": "bigint"
+									"type": "Int64"
 								},
 								"sink": {
 									"name": "AccountID",
-									"type": "Int64",
-									"physicalType": "INT_64"
+									"type": "Int64"
 								}
 							},
 							{
 								"source": {
 									"name": "AccountNumber",
-									"type": "String",
-									"physicalType": "varchar"
+									"type": "String"
 								},
 								"sink": {
 									"name": "AccountNumber",
-									"type": "String",
-									"physicalType": "UTF8"
+									"type": "String"
 								}
 							},
 							{
 								"source": {
 									"name": "CustomerID",
-									"type": "Int64",
-									"physicalType": "bigint"
+									"type": "Int64"
 								},
 								"sink": {
 									"name": "CustomerID",
-									"type": "Int64",
-									"physicalType": "INT_64"
+									"type": "Int64"
 								}
 							},
 							{
 								"source": {
 									"name": "BranchID",
-									"type": "Int32",
-									"physicalType": "int"
+									"type": "Int32"
 								},
 								"sink": {
 									"name": "BranchID",
-									"type": "Int32",
-									"physicalType": "INT_32"
+									"type": "Int32"
 								}
 							},
 							{
 								"source": {
 									"name": "AccountType",
-									"type": "String",
-									"physicalType": "varchar"
+									"type": "String"
 								},
 								"sink": {
 									"name": "AccountType",
-									"type": "String",
-									"physicalType": "UTF8"
+									"type": "String"
 								}
 							},
 							{
 								"source": {
 									"name": "CurrencyCode",
-									"type": "String",
-									"physicalType": "char"
+									"type": "String"
 								},
 								"sink": {
 									"name": "CurrencyCode",
-									"type": "String",
-									"physicalType": "UTF8"
+									"type": "String"
 								}
 							},
 							{
 								"source": {
 									"name": "OpeningDate",
-									"type": "Date",
-									"physicalType": "date"
+									"type": "Date"
 								},
 								"sink": {
 									"name": "OpeningDate",
@@ -120,8 +97,7 @@
 							{
 								"source": {
 									"name": "ClosingDate",
-									"type": "Date",
-									"physicalType": "date"
+									"type": "Date"
 								},
 								"sink": {
 									"name": "ClosingDate",
@@ -131,73 +107,54 @@
 							{
 								"source": {
 									"name": "CurrentBalance",
-									"type": "Decimal",
-									"physicalType": "decimal",
-									"scale": 2,
-									"precision": 18
+									"type": "Decimal"
 								},
 								"sink": {
 									"name": "CurrentBalance",
-									"type": "Decimal",
-									"physicalType": "DECIMAL"
+									"type": "Decimal"
 								}
 							},
 							{
 								"source": {
 									"name": "AvailableBalance",
-									"type": "Decimal",
-									"physicalType": "decimal",
-									"scale": 2,
-									"precision": 18
+									"type": "Decimal"
 								},
 								"sink": {
 									"name": "AvailableBalance",
-									"type": "Decimal",
-									"physicalType": "DECIMAL"
+									"type": "Decimal"
 								}
 							},
 							{
 								"source": {
 									"name": "AccountStatus",
-									"type": "String",
-									"physicalType": "varchar"
+									"type": "String"
 								},
 								"sink": {
 									"name": "AccountStatus",
-									"type": "String",
-									"physicalType": "UTF8"
+									"type": "String"
 								}
 							},
 							{
 								"source": {
 									"name": "CreatedDate",
-									"type": "DateTime",
-									"physicalType": "datetime2"
+									"type": "DateTime"
 								},
 								"sink": {
 									"name": "CreatedDate",
-									"type": "DateTime",
-									"physicalType": "INT_96"
+									"type": "DateTime"
 								}
 							},
 							{
 								"source": {
 									"name": "LastModifiedDate",
-									"type": "DateTime",
-									"physicalType": "datetime2"
+									"type": "DateTime"
 								},
 								"sink": {
 									"name": "LastModifiedDate",
-									"type": "DateTime",
-									"physicalType": "INT_96"
+									"type": "DateTime"
 								}
 							}
-						],
-						"typeConversion": true,
-						"typeConversionSettings": {
-							"allowDataTruncation": true,
-							"treatBooleanAsNumber": false
-						}
+						]
 					}
 				},
 				"inputs": [
@@ -208,18 +165,6 @@
 							"schemaname": "dbo",
 							"tablename": {
 								"value": "@pipeline().parameters.tablename",
-								"type": "Expression"
-							}
-						}
-					}
-				],
-				"outputs": [
-					{
-						"referenceName": "Ds_adls",
-						"type": "DatasetReference",
-						"parameters": {
-							"filename": {
-								"value": "@pipeline().parameters.filename",
 								"type": "Expression"
 							}
 						}
