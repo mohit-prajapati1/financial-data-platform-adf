@@ -2,10 +2,10 @@
 	"name": "PL_SQL_To_ADLS_Raw",
 	"properties": {
 		"parameters": {
-			"tablename": {
+			"schemaname": {
 				"type": "string"
 			},
-			"filename": {
+			"tablename": {
 				"type": "string"
 			}
 		},
