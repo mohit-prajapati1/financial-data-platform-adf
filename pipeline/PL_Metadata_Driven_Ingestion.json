@@ -5,14 +5,9 @@
 			{
 				"name": "Listtable",
 				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "LKP_Table_Config",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
