@@ -17,17 +17,15 @@
 				"typeProperties": {
 					"source": {
 						"type": "SqlServerSource",
-						"sqlReaderQuery": "SELECT\n*\nFROM ETL_Table_Config\n",
+						"sqlReaderQuery": "SELECT\n    TableID,\n    TableName,\n    SourceSchema,\n    TargetFolder\nFROM ETL_Table_Config\nWHERE IsActive = 1\nORDER BY TableID;\n",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
 					"dataset": {
 						"referenceName": "DS_SQL_Source",
-						"type": "DatasetReference",
-						"parameters": {
-							"schemaname": "dbo"
-						}
-					}
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
 				}
 			}
 		],
