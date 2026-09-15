@@ -5,26 +5,8 @@
 			"referenceName": "LS_SQLServer_ApexCoreBanking_DEV",
 			"type": "LinkedServiceReference"
 		},
-		"parameters": {
-			"schemaname": {
-				"type": "string"
-			},
-			"tablename": {
-				"type": "string"
-			}
-		},
 		"annotations": [],
 		"type": "SqlServerTable",
-		"schema": [],
-		"typeProperties": {
-			"schema": {
-				"value": "@dataset().schemaname",
-				"type": "Expression"
-			},
-			"table": {
-				"value": "@dataset().tablename",
-				"type": "Expression"
-			}
-		}
+		"schema": []
 	}
 }
