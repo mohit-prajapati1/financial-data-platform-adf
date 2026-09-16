@@ -1,5 +1,5 @@
 {
-	"name": "DS_datalake",
+	"name": "DS_datalake_raw",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "LS_ADLS",
@@ -10,6 +10,9 @@
 				"type": "string"
 			},
 			"foldername": {
+				"type": "string"
+			},
+			"filesystem": {
 				"type": "string"
 			}
 		},
@@ -26,7 +29,10 @@
 					"value": "@dataset().foldername",
 					"type": "Expression"
 				},
-				"fileSystem": "raw"
+				"fileSystem": {
+					"value": "@dataset().filesystem",
+					"type": "Expression"
+				}
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
