@@ -1,5 +1,5 @@
 {
-	"name": "DS_datalake_sql_raw",
+	"name": "DS_datalake_onprem",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "LS_ADLS",
@@ -26,7 +26,7 @@
 					"value": "@dataset().foldername",
 					"type": "Expression"
 				},
-				"fileSystem": "rawsqlserver"
+				"fileSystem": "rawonprem"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
