@@ -104,11 +104,19 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "DS_datalake",
+									"referenceName": "DS_datalake_raw",
 									"type": "DatasetReference",
 									"parameters": {
 										"filename": {
 											"value": "@concat(\r\n    item().tablename,\r\n    '_',\r\n    formatDateTime(utcnow(),'yyyyMMdd_HHmmss'),\r\n    '.csv'\r\n)",
+											"type": "Expression"
+										},
+										"foldername": {
+											"value": "@item().tablename",
+											"type": "Expression"
+										},
+										"filesystem": {
+											"value": "@concat('sqlserver_raw/', item().tableName)",
 											"type": "Expression"
 										}
 									}
