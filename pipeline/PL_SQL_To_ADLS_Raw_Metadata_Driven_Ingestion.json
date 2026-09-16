@@ -104,7 +104,7 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "DS_datalake_raw",
+									"referenceName": "DS_datalake_sql_raw",
 									"type": "DatasetReference",
 									"parameters": {
 										"filename": {
@@ -113,10 +113,6 @@
 										},
 										"foldername": {
 											"value": "@item().tablename",
-											"type": "Expression"
-										},
-										"filesystem": {
-											"value": "@concat('sqlserver_raw/', item().tableName)",
 											"type": "Expression"
 										}
 									}
