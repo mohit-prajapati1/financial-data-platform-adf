@@ -1,0 +1,30 @@
+{
+	"name": "DS_SQL_Source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_SQLServer_ApexCoreBanking_DEV",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"p_schemaName": {
+				"type": "string"
+			},
+			"p_tableName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().p_schemaName",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().p_tableName",
+				"type": "Expression"
+			}
+		}
+	}
+}
