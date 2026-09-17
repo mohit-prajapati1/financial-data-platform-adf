@@ -1,0 +1,12 @@
+{
+	"name": "DS_SQL_Control",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_SQLServer_ApexCoreBanking_DEV",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": []
+	}
+}
