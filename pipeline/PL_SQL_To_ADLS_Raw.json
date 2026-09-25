@@ -48,73 +48,134 @@
 					"batchCount": 5,
 					"activities": [
 						{
-							"name": "CP_SQL_To_ADLS_Raw",
-							"type": "Copy",
+							"name": "IF_LoadType",
+							"type": "IfCondition",
 							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 2,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
 							"userProperties": [],
 							"typeProperties": {
-								"source": {
-									"type": "SqlServerSource",
-									"queryTimeout": "02:00:00",
-									"partitionOption": "None"
+								"expression": {
+									"value": "@equals(item().LoadType,'INCREMENTAL')",
+									"type": "Expression"
 								},
-								"sink": {
-									"type": "DelimitedTextSink",
-									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings"
-									},
-									"formatSettings": {
-										"type": "DelimitedTextWriteSettings",
-										"quoteAllText": true,
-										"fileExtension": ".txt"
-									}
-								},
-								"enableStaging": false,
-								"translator": {
-									"type": "TabularTranslator",
-									"typeConversion": true,
-									"typeConversionSettings": {
-										"allowDataTruncation": true,
-										"treatBooleanAsNumber": false
-									}
-								}
-							},
-							"inputs": [
-								{
-									"referenceName": "DS_SQL_Source",
-									"type": "DatasetReference",
-									"parameters": {
-										"p_schemaName": {
-											"value": "@item().SourceSchema",
-											"type": "Expression"
+								"ifTrueActivities": [
+									{
+										"name": "CP_INCREMENTAL_SQL_To_ADLS",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 2,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
 										},
-										"p_tableName": {
-											"value": "@item().SourceObject",
-											"type": "Expression"
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"sqlReaderQuery": {
+													"value": "@concat(\n    'SELECT * FROM ',\n    item().SourceSchema,\n    '.',\n    item().SourceObject,\n    ' WHERE ',\n    item().WatermarkColumn,\n    ' > ''',\n    formatDateTime(\n        item().LastWatermarkValue,\n        'yyyy-MM-dd HH:mm:ss.fffffff'\n    ),\n    ''''\n)",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "DelimitedTextSink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings"
+												},
+												"formatSettings": {
+													"type": "DelimitedTextWriteSettings",
+													"quoteAllText": true,
+													"fileExtension": ".txt"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_SQL_Source",
+												"type": "DatasetReference",
+												"parameters": {
+													"p_schemaName": {
+														"value": "@item().SourceSchema",
+														"type": "Expression"
+													},
+													"p_tableName": {
+														"value": "@item().SourceObject",
+														"type": "Expression"
+													}
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_ADLS_Raw",
+												"type": "DatasetReference",
+												"parameters": {
+													"p_folderPath": {
+														"value": "@concat(\n    item().TargetFolder,\n    '/year=',\n    formatDateTime(\n        convertFromUtc(\n            utcNow(),\n            'India Standard Time'\n        ),\n        'yyyy'\n    ),\n    '/month=',\n    formatDateTime(\n        convertFromUtc(\n            utcNow(),\n            'India Standard Time'\n        ),\n        'MM'\n    ),\n    '/day=',\n    formatDateTime(\n        convertFromUtc(\n            utcNow(),\n            'India Standard Time'\n        ),\n        'dd'\n    )\n)",
+														"type": "Expression"
+													},
+													"p_fileName": "@concat(     toLower(item().SourceName),     '_',     formatDateTime(         convertFromUtc(             utcNow(),             'India Standard Time'         ),         'yyyyMMdd_HHmmss'     ),     '.csv' )"
+												}
+											}
+										]
+									},
+									{
+										"name": "LKP_NewWatermark",
+										"type": "Lookup",
+										"dependsOn": [
+											{
+												"activity": "CP_INCREMENTAL_SQL_To_ADLS",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"sqlReaderQuery": "@concat(\n    'SELECT MAX(',\n    item().WatermarkColumn,\n    ') AS NewWatermark FROM ',\n    item().SourceSchema,\n    '.',\n    item().SourceObject\n)",
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"dataset": {
+												"referenceName": "DS_SQL_Source",
+												"type": "DatasetReference",
+												"parameters": {
+													"p_schemaName": {
+														"value": "@item().SourceSchema",
+														"type": "Expression"
+													},
+													"p_tableName": {
+														"value": "@item().SourceObject",
+														"type": "Expression"
+													}
+												}
+											},
+											"firstRowOnly": true
 										}
 									}
-								}
-							],
-							"outputs": [
-								{
-									"referenceName": "DS_ADLS_Raw",
-									"type": "DatasetReference",
-									"parameters": {
-										"p_folderPath": {
-											"value": "@concat(\n    item().TargetFolder,\n    '/year=',\n    formatDateTime(\n        convertFromUtc(\n            utcNow(),\n            'India Standard Time'\n        ),\n        'yyyy'\n    ),\n    '/month=',\n    formatDateTime(\n        convertFromUtc(\n            utcNow(),\n            'India Standard Time'\n        ),\n        'MM'\n    ),\n    '/day=',\n    formatDateTime(\n        convertFromUtc(\n            utcNow(),\n            'India Standard Time'\n        ),\n        'dd'\n    )\n)",
-											"type": "Expression"
-										},
-										"p_fileName": "@concat(     toLower(item().SourceName),     '_',     formatDateTime(         convertFromUtc(             utcNow(),             'India Standard Time'         ),         'yyyyMMdd_HHmmss'     ),     '.csv' )"
-									}
-								}
-							]
+								]
+							}
 						}
 					]
 				}
