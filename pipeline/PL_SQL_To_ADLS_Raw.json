@@ -295,6 +295,73 @@
 												}
 											}
 										}
+									},
+									{
+										"name": "SP_Audit_Incremental_Success",
+										"type": "SqlServerStoredProcedure",
+										"dependsOn": [
+											{
+												"activity": "SP_Update_Watermark",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"storedProcedureName": "[dbo].[usp_Complete_ADF_Audit]",
+											"storedProcedureParameters": {
+												"ControlID": {
+													"value": {
+														"value": "@item().ControlID",
+														"type": "Expression"
+													},
+													"type": "Int32"
+												},
+												"PipelineRunID": {
+													"value": "@pipeline().RunId",
+													"type": "String"
+												},
+												"RowsCopied": {
+													"value": {
+														"value": "@activity('CP_INCREMENTAL_SQL_To_ADLS').output.rowsRead",
+														"type": "Expression"
+													},
+													"type": "Int64"
+												},
+												"RowsRead": {
+													"value": "@activity('CP_INCREMENTAL_SQL_To_ADLS').output.rowsCopied",
+													"type": "Int64"
+												},
+												"TargetContainer": {
+													"value": "@item().TargetFolder",
+													"type": "String"
+												},
+												"TargetFileName": {
+													"value": "@concat(\n    toLower(item().SourceName),\n    '_',\n    formatDateTime(\n        convertFromUtc(utcNow(),'India Standard Time'),\n        'yyyyMMdd_HHmmss'\n    ),\n    '.csv'\n)",
+													"type": "String"
+												},
+												"TargetFolder": {
+													"value": "@item().TargetFolder",
+													"type": "String"
+												},
+												"WatermarkEnd": {
+													"value": "@activity('LKP_UpperWatermark').output.firstRow.UpperWatermark",
+													"type": "DateTime"
+												}
+											}
+										},
+										"linkedServiceName": {
+											"referenceName": "LS_SQLServer_ApexCoreBanking_DEV",
+											"type": "LinkedServiceReference"
+										}
 									}
 								]
 							}
