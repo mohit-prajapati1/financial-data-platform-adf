@@ -244,7 +244,7 @@
 											"storedProcedureParameters": {
 												"@ControlID": {
 													"value": "@item().ControlID",
-													"type": "String"
+													"type": "Int32"
 												},
 												"@NewWatermark": {
 													"value": "@activity('LKP_NewWatermark').output.firstRow.NewWatermark",
