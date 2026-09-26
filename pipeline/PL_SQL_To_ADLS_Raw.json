@@ -115,8 +115,14 @@
 												"referenceName": "DS_ADLS_Raw",
 												"type": "DatasetReference",
 												"parameters": {
-													"p_folderPath": "@concat(     item().TargetFolder,     '/year=',     formatDateTime(variables('v_RunTimestamp'),'yyyy'),     '/month=',     formatDateTime(variables('v_RunTimestamp'),'MM'),     '/day=',     formatDateTime(variables('v_RunTimestamp'),'dd') )",
-													"p_fileName": "@concat(     toLower(item().SourceName),     '_',     formatDateTime(         variables('v_RunTimestamp'),         'yyyyMMdd_HHmmss'     ),     '.csv' )"
+													"p_folderPath": {
+														"value": "@concat(\n    item().TargetFolder,\n    '/year=',\n    formatDateTime(\n        convertFromUtc(utcNow(),'India Standard Time'),\n        'yyyy'\n    ),\n    '/month=',\n    formatDateTime(\n        convertFromUtc(utcNow(),'India Standard Time'),\n        'MM'\n    ),\n    '/day=',\n    formatDateTime(\n        convertFromUtc(utcNow(),'India Standard Time'),\n        'dd'\n    )\n)",
+														"type": "Expression"
+													},
+													"p_fileName": {
+														"value": "@concat(\n    toLower(item().SourceName),\n    '_',\n    formatDateTime(\n        convertFromUtc(utcNow(),'India Standard Time'),\n        'yyyyMMdd_HHmmss'\n    ),\n    '.csv'\n)",
+														"type": "Expression"
+													}
 												}
 											}
 										]
