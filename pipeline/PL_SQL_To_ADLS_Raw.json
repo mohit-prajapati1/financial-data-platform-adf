@@ -1,0 +1,551 @@
+{
+	"name": "PL_SQL_To_ADLS_Raw",
+	"properties": {
+		"activities": [
+			{
+				"name": "LKP_SQL_Control",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 1,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT *\nFROM dbo.ADF_Control_Table\nWHERE SourceSystem = 'SQLServer'\n  AND IsActive = 1\nORDER BY LoadSequence;",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_SQL_Control",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "FE_SQL_Tables",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "LKP_SQL_Control",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('LKP_SQL_Control').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"batchCount": 5,
+					"activities": [
+						{
+							"name": "IF_LoadType",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "SP_Start_Audit",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@equals(item().LoadType,'INCREMENTAL')",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "CP_FULL_SQL_To_ADLS",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "DelimitedTextSink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings"
+												},
+												"formatSettings": {
+													"type": "DelimitedTextWriteSettings",
+													"quoteAllText": true,
+													"fileExtension": ".txt"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_SQL_Source",
+												"type": "DatasetReference",
+												"parameters": {
+													"p_schemaName": {
+														"value": "@item().SourceSchema",
+														"type": "Expression"
+													},
+													"p_tableName": "@item().SourceObject"
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_ADLS_Raw",
+												"type": "DatasetReference",
+												"parameters": {
+													"p_folderPath": {
+														"value": "@concat(\n    item().TargetFolder,\n    '/year=',\n    formatDateTime(\n        convertFromUtc(utcNow(),'India Standard Time'),\n        'yyyy'\n    ),\n    '/month=',\n    formatDateTime(\n        convertFromUtc(utcNow(),'India Standard Time'),\n        'MM'\n    ),\n    '/day=',\n    formatDateTime(\n        convertFromUtc(utcNow(),'India Standard Time'),\n        'dd'\n    )\n)",
+														"type": "Expression"
+													},
+													"p_fileName": {
+														"value": "@concat(\n    toLower(item().SourceName),\n    '_',\n    formatDateTime(\n        convertFromUtc(utcNow(),'India Standard Time'),\n        'yyyyMMdd_HHmmss'\n    ),\n    '.csv'\n)",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									},
+									{
+										"name": "SP_Audit_Full_Success",
+										"type": "SqlServerStoredProcedure",
+										"dependsOn": [
+											{
+												"activity": "CP_FULL_SQL_To_ADLS",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"storedProcedureName": "[dbo].[usp_Complete_ADF_Audit]",
+											"storedProcedureParameters": {
+												"ControlID": {
+													"value": "@item().ControlID",
+													"type": "Int32"
+												},
+												"PipelineRunID": {
+													"value": "@pipeline().RunId",
+													"type": "String"
+												},
+												"RowsCopied": {
+													"value": {
+														"value": "@activity('CP_FULL_SQL_To_ADLS').output.rowsCopied",
+														"type": "Expression"
+													},
+													"type": "Int64"
+												},
+												"RowsRead": {
+													"value": "@activity('CP_FULL_SQL_To_ADLS').output.rowsRead",
+													"type": "Int64"
+												},
+												"TargetContainer": {
+													"value": "@item().TargetContainer",
+													"type": "String"
+												},
+												"TargetFileName": {
+													"value": "@concat(\n    toLower(item().SourceName),\n    '_',\n    formatDateTime(\n        convertFromUtc(utcNow(),'India Standard Time'),\n        'yyyyMMdd_HHmmss'\n    ),\n    '.csv'\n)",
+													"type": "String"
+												},
+												"TargetFolder": {
+													"value": "@item().TargetFolder",
+													"type": "String"
+												},
+												"WatermarkEnd": {
+													"value": null,
+													"type": "DateTime"
+												}
+											}
+										},
+										"linkedServiceName": {
+											"referenceName": "LS_SQLServer_ApexCoreBanking_DEV",
+											"type": "LinkedServiceReference"
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "CP_INCREMENTAL_SQL_To_ADLS",
+										"type": "Copy",
+										"dependsOn": [
+											{
+												"activity": "LKP_UpperWatermark",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"sqlReaderQuery": {
+													"value": "@concat(\n    'SELECT * FROM [',\n    item().SourceSchema,\n    '].[',\n    item().SourceObject,\n    '] WHERE [',\n    item().WatermarkColumn,\n    '] > ''',\n    formatDateTime(\n        item().LastWatermarkValue,\n        'yyyy-MM-dd HH:mm:ss.fffffff'\n    ),\n    ''' AND [',\n    item().WatermarkColumn,\n    '] <= ''',\n    formatDateTime(\n        activity('LKP_UpperWatermark').output.firstRow.UpperWatermark,\n        'yyyy-MM-dd HH:mm:ss.fffffff'\n    ),\n    ''''\n)",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "DelimitedTextSink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings"
+												},
+												"formatSettings": {
+													"type": "DelimitedTextWriteSettings",
+													"quoteAllText": true,
+													"fileExtension": ".txt"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_SQL_Source",
+												"type": "DatasetReference",
+												"parameters": {
+													"p_schemaName": "@item().SourceSchema",
+													"p_tableName": "@item().SourceObject"
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_ADLS_Raw",
+												"type": "DatasetReference",
+												"parameters": {
+													"p_folderPath": {
+														"value": "@concat(\n    item().TargetFolder,\n    '/year=',\n    formatDateTime(\n        convertFromUtc(utcNow(),'India Standard Time'),\n        'yyyy'\n    ),\n    '/month=',\n    formatDateTime(\n        convertFromUtc(utcNow(),'India Standard Time'),\n        'MM'\n    ),\n    '/day=',\n    formatDateTime(\n        convertFromUtc(utcNow(),'India Standard Time'),\n        'dd'\n    )\n)",
+														"type": "Expression"
+													},
+													"p_fileName": {
+														"value": "@concat(\n    toLower(item().SourceName),\n    '_',\n    formatDateTime(\n        convertFromUtc(utcNow(),'India Standard Time'),\n        'yyyyMMdd_HHmmss'\n    ),\n    '.csv'\n)",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									},
+									{
+										"name": "SP_Update_Watermark",
+										"type": "SqlServerStoredProcedure",
+										"dependsOn": [
+											{
+												"activity": "CP_INCREMENTAL_SQL_To_ADLS",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"storedProcedureName": "[dbo].[usp_Update_ADF_Watermark]",
+											"storedProcedureParameters": {
+												"ControlID": {
+													"value": "@item().ControlID",
+													"type": "Int32"
+												},
+												"NewWatermark": {
+													"value": {
+														"value": "@activity('LKP_UpperWatermark').output.firstRow.UpperWatermark",
+														"type": "Expression"
+													},
+													"type": "String"
+												},
+												"RunID": {
+													"value": {
+														"value": "@pipeline().RunId",
+														"type": "Expression"
+													},
+													"type": "String"
+												}
+											}
+										},
+										"linkedServiceName": {
+											"referenceName": "LS_SQLServer_ApexCoreBanking_DEV",
+											"type": "LinkedServiceReference"
+										}
+									},
+									{
+										"name": "LKP_UpperWatermark",
+										"type": "Lookup",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"sqlReaderQuery": "@concat(\n    'SELECT SYSDATETIME() AS UpperWatermark'\n)",
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"dataset": {
+												"referenceName": "DS_SQL_Source",
+												"type": "DatasetReference",
+												"parameters": {
+													"p_schemaName": {
+														"value": "@item().SourceSchema",
+														"type": "Expression"
+													},
+													"p_tableName": {
+														"value": "@item().SourceObject",
+														"type": "Expression"
+													}
+												}
+											}
+										}
+									},
+									{
+										"name": "SP_Audit_Incremental_Success",
+										"type": "SqlServerStoredProcedure",
+										"dependsOn": [
+											{
+												"activity": "SP_Update_Watermark",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"storedProcedureName": "[dbo].[usp_Complete_ADF_Audit]",
+											"storedProcedureParameters": {
+												"ControlID": {
+													"value": {
+														"value": "@item().ControlID",
+														"type": "Expression"
+													},
+													"type": "Int32"
+												},
+												"PipelineRunID": {
+													"value": "@pipeline().RunId",
+													"type": "String"
+												},
+												"RowsCopied": {
+													"value": {
+														"value": "@activity('CP_INCREMENTAL_SQL_To_ADLS').output.rowsRead",
+														"type": "Expression"
+													},
+													"type": "Int64"
+												},
+												"RowsRead": {
+													"value": "@activity('CP_INCREMENTAL_SQL_To_ADLS').output.rowsCopied",
+													"type": "Int64"
+												},
+												"TargetContainer": {
+													"value": "@item().TargetFolder",
+													"type": "String"
+												},
+												"TargetFileName": {
+													"value": "@concat(\n    toLower(item().SourceName),\n    '_',\n    formatDateTime(\n        convertFromUtc(utcNow(),'India Standard Time'),\n        'yyyyMMdd_HHmmss'\n    ),\n    '.csv'\n)",
+													"type": "String"
+												},
+												"TargetFolder": {
+													"value": "@item().TargetFolder",
+													"type": "String"
+												},
+												"WatermarkEnd": {
+													"value": "@activity('LKP_UpperWatermark').output.firstRow.UpperWatermark",
+													"type": "DateTime"
+												}
+											}
+										},
+										"linkedServiceName": {
+											"referenceName": "LS_SQLServer_ApexCoreBanking_DEV",
+											"type": "LinkedServiceReference"
+										}
+									},
+									{
+										"name": "SP_Audit_Incremental_Failure",
+										"type": "SqlServerStoredProcedure",
+										"dependsOn": [
+											{
+												"activity": "CP_INCREMENTAL_SQL_To_ADLS",
+												"dependencyConditions": [
+													"Failed"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"storedProcedureName": "[dbo].[usp_Fail_ADF_Audit]",
+											"storedProcedureParameters": {
+												"ControlID": {
+													"value": "@item().ControlID",
+													"type": "Int32"
+												},
+												"ErrorCode": {
+													"value": null,
+													"type": "String"
+												},
+												"ErrorMessage": {
+													"value": null,
+													"type": "String"
+												},
+												"PipelineRunID": {
+													"value": "@pipeline().RunId",
+													"type": "String"
+												}
+											}
+										},
+										"linkedServiceName": {
+											"referenceName": "LS_SQLServer_ApexCoreBanking_DEV",
+											"type": "LinkedServiceReference"
+										}
+									}
+								]
+							}
+						},
+						{
+							"name": "SP_Start_Audit",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[usp_Start_ADF_Audit]",
+								"storedProcedureParameters": {
+									"ControlID": {
+										"value": {
+											"value": "@item().ControlID",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"LoadType": {
+										"value": "@item().LoadType",
+										"type": "String"
+									},
+									"PipelineName": {
+										"value": {
+											"value": "@pipeline().Pipeline",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineRunID": {
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"SourceName": {
+										"value": "@item().SourceSystem",
+										"type": "String"
+									},
+									"SourceObject": {
+										"value": "@item().SourceObject",
+										"type": "String"
+									},
+									"SourceSchema": {
+										"value": "@item().SourceName",
+										"type": "String"
+									},
+									"SourceSystem": {
+										"value": "@item().SourceSystem",
+										"type": "String"
+									},
+									"WatermarkStart": {
+										"value": null,
+										"type": "DateTime"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_SQLServer_ApexCoreBanking_DEV",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"annotations": []
+	}
+}
