@@ -236,6 +236,13 @@
 												"NewWatermark": {
 													"value": "@activity('LKP_NewWatermark').output.firstRow.NewWatermark",
 													"type": "String"
+												},
+												"RunID": {
+													"value": {
+														"value": "@pipeline().RunId",
+														"type": "Expression"
+													},
+													"type": "String"
 												}
 											}
 										},
