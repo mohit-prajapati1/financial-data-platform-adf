@@ -64,7 +64,7 @@
 										"dependsOn": [],
 										"policy": {
 											"timeout": "0.12:00:00",
-											"retry": 2,
+											"retry": 0,
 											"retryIntervalInSeconds": 30,
 											"secureOutput": false,
 											"secureInput": false
@@ -73,10 +73,7 @@
 										"typeProperties": {
 											"source": {
 												"type": "SqlServerSource",
-												"sqlReaderQuery": {
-													"value": "@concat(\n    'SELECT * FROM ',\n    item().SourceSchema,\n    '.',\n    item().SourceObject,\n    ' WHERE ',\n    item().WatermarkColumn,\n    ' > ''',\n    formatDateTime(\n        item().LastWatermarkValue,\n        'yyyy-MM-dd HH:mm:ss.fffffff'\n    ),\n    ''''\n)",
-													"type": "Expression"
-												},
+												"sqlReaderQuery": "@concat(\n    'SELECT * FROM ',\n    item().SourceSchema,\n    '.',\n    item().SourceObject,\n    ' WHERE ',\n    item().WatermarkColumn,\n    ' > ''',\n    formatDateTime(\n        item().LastWatermarkValue,\n        'yyyy-MM-dd HH:mm:ss.fffffff'\n    ),\n    ''''\n)",
 												"queryTimeout": "02:00:00",
 												"partitionOption": "None"
 											},
@@ -106,14 +103,8 @@
 												"referenceName": "DS_SQL_Source",
 												"type": "DatasetReference",
 												"parameters": {
-													"p_schemaName": {
-														"value": "@item().SourceSchema",
-														"type": "Expression"
-													},
-													"p_tableName": {
-														"value": "@item().SourceObject",
-														"type": "Expression"
-													}
+													"p_schemaName": "@item().SourceSchema",
+													"p_tableName": "@item().SourceObject"
 												}
 											}
 										],
@@ -122,57 +113,11 @@
 												"referenceName": "DS_ADLS_Raw",
 												"type": "DatasetReference",
 												"parameters": {
-													"p_folderPath": {
-														"value": "@concat(\n    item().TargetFolder,\n    '/year=',\n    formatDateTime(\n        convertFromUtc(\n            utcNow(),\n            'India Standard Time'\n        ),\n        'yyyy'\n    ),\n    '/month=',\n    formatDateTime(\n        convertFromUtc(\n            utcNow(),\n            'India Standard Time'\n        ),\n        'MM'\n    ),\n    '/day=',\n    formatDateTime(\n        convertFromUtc(\n            utcNow(),\n            'India Standard Time'\n        ),\n        'dd'\n    )\n)",
-														"type": "Expression"
-													},
-													"p_fileName": "@concat(     toLower(item().SourceName),     '_',     formatDateTime(         convertFromUtc(             utcNow(),             'India Standard Time'         ),         'yyyyMMdd_HHmmss'     ),     '.csv' )"
+													"p_folderPath": "@concat(     'SELECT * FROM ',     item().SourceSchema,     '.',     item().SourceObject,     ' WHERE ',     item().WatermarkColumn,     ' > ''',     formatDateTime(         item().LastWatermarkValue,         'yyyy-MM-dd HH:mm:ss.fffffff'     ),     '''' )",
+													"p_fileName": "@concat(     toLower(item().SourceName),     '_',     formatDateTime(         variables('v_RunTimestamp'),         'yyyyMMdd_HHmmss'     ),     '.csv' )"
 												}
 											}
 										]
-									},
-									{
-										"name": "LKP_NewWatermark",
-										"type": "Lookup",
-										"dependsOn": [
-											{
-												"activity": "CP_INCREMENTAL_SQL_To_ADLS",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
-										"policy": {
-											"timeout": "0.12:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"source": {
-												"type": "SqlServerSource",
-												"sqlReaderQuery": "@concat(\n    'SELECT MAX(',\n    item().WatermarkColumn,\n    ') AS NewWatermark FROM ',\n    item().SourceSchema,\n    '.',\n    item().SourceObject\n)",
-												"queryTimeout": "02:00:00",
-												"partitionOption": "None"
-											},
-											"dataset": {
-												"referenceName": "DS_SQL_Source",
-												"type": "DatasetReference",
-												"parameters": {
-													"p_schemaName": {
-														"value": "@item().SourceSchema",
-														"type": "Expression"
-													},
-													"p_tableName": {
-														"value": "@item().SourceObject",
-														"type": "Expression"
-													}
-												}
-											},
-											"firstRowOnly": true
-										}
 									}
 								]
 							}
