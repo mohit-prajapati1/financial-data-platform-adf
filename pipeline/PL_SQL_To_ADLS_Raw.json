@@ -118,6 +118,79 @@
 												}
 											}
 										]
+									},
+									{
+										"name": "LKP_NewWatermark",
+										"type": "Lookup",
+										"dependsOn": [
+											{
+												"activity": "CP_INCREMENTAL_SQL_To_ADLS",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"sqlReaderQuery": "@concat(\n    'SELECT MAX(',\n    item().WatermarkColumn,\n    ') AS NewWatermark FROM ',\n    item().SourceSchema,\n    '.',\n    item().SourceObject\n)",
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"dataset": {
+												"referenceName": "DS_SQL_Source",
+												"type": "DatasetReference",
+												"parameters": {
+													"p_schemaName": "@item().SourceSchema",
+													"p_tableName": "@item().SourceObject"
+												}
+											}
+										}
+									},
+									{
+										"name": "SP_Update_Watermark",
+										"type": "SqlServerStoredProcedure",
+										"dependsOn": [
+											{
+												"activity": "LKP_NewWatermark",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"storedProcedureName": "[dbo].[usp_Update_ADF_Watermark]",
+											"storedProcedureParameters": {
+												"@ControlID": {
+													"value": "@item().ControlID",
+													"type": "String"
+												},
+												"@NewWatermark": {
+													"value": "@activity('LKP_NewWatermark').output.firstRow.NewWatermark",
+													"type": "String"
+												}
+											}
+										},
+										"linkedServiceName": {
+											"referenceName": "LS_SQLServer_ApexCoreBanking_DEV",
+											"type": "LinkedServiceReference"
+										}
 									}
 								]
 							}
