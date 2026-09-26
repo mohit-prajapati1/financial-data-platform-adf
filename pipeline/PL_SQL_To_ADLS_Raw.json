@@ -51,7 +51,14 @@
 						{
 							"name": "IF_LoadType",
 							"type": "IfCondition",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "SP_Start_Audit",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
@@ -290,6 +297,73 @@
 										}
 									}
 								]
+							}
+						},
+						{
+							"name": "SP_Start_Audit",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[usp_Start_ADF_Audit]",
+								"storedProcedureParameters": {
+									"ControlID": {
+										"value": {
+											"value": "@item().ControlID",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"LoadType": {
+										"value": "@item().LoadType",
+										"type": "String"
+									},
+									"PipelineName": {
+										"value": {
+											"value": "@pipeline().Pipeline",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineRunID": {
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"SourceName": {
+										"value": "@item().SourceSystem",
+										"type": "String"
+									},
+									"SourceObject": {
+										"value": "@item().SourceObject",
+										"type": "String"
+									},
+									"SourceSchema": {
+										"value": "@item().SourceName",
+										"type": "String"
+									},
+									"SourceSystem": {
+										"value": "@item().SourceSystem",
+										"type": "String"
+									},
+									"WatermarkStart": {
+										"value": null,
+										"type": "DateTime"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_SQLServer_ApexCoreBanking_DEV",
+								"type": "LinkedServiceReference"
 							}
 						}
 					]
