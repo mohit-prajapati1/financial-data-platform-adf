@@ -189,7 +189,7 @@
 													"type": "String"
 												},
 												"WatermarkEnd": {
-													"value": "@activity('LKP_UpperWatermark').output.firstRow.UpperWatermark",
+													"value": null,
 													"type": "DateTime"
 												}
 											}
