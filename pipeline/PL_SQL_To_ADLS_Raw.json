@@ -144,7 +144,10 @@
 										"typeProperties": {
 											"source": {
 												"type": "SqlServerSource",
-												"sqlReaderQuery": "@concat(\n    'SELECT * FROM ',\n    item().SourceSchema,\n    '.',\n    item().SourceObject,\n    ' WHERE ',\n    item().WatermarkColumn,\n    ' > ''',\n    formatDateTime(\n        item().LastWatermarkValue,\n        'yyyy-MM-dd HH:mm:ss.fffffff'\n    ),\n    ''''\n)",
+												"sqlReaderQuery": {
+													"value": "@concat(\n    'SELECT * FROM [',\n    item().SourceSchema,\n    '].[',\n    item().SourceObject,\n    '] WHERE [',\n    item().WatermarkColumn,\n    '] > ''',\n    formatDateTime(\n        item().LastWatermarkValue,\n        'yyyy-MM-dd HH:mm:ss.fffffff'\n    ),\n    ''''\n)",
+													"type": "Expression"
+												},
 												"queryTimeout": "02:00:00",
 												"partitionOption": "None"
 											},
