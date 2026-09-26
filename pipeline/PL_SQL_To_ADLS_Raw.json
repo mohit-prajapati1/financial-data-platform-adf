@@ -234,7 +234,10 @@
 													"type": "Int32"
 												},
 												"NewWatermark": {
-													"value": "@activity('LKP_NewWatermark').output.firstRow.NewWatermark",
+													"value": {
+														"value": "@activity('LKP_UpperWatermark').output.firstRow.UpperWatermark",
+														"type": "Expression"
+													},
 													"type": "String"
 												},
 												"RunID": {
